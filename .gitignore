@@ -1,0 +1,11 @@
+# Local credentials, outputs and editor files
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.DS_Store
+.idea/
+.vscode/
+node_modules/
+target/
