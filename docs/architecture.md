@@ -35,12 +35,12 @@ sequenceDiagram
     W->>V: Transfer USDC
     V->>U: Record vault shares
     Note over V,P: Allocation through an authorized registry execution
-    V->>P: Supply USDC; vault owns position
+    V->>P: Supply USDC and record vault-owned position
     U->>V: Authorize redemption
     V->>P: Recall liquidity if buffer is insufficient
     P->>V: Return available USDC
     V->>W: Pay redemption and burn shares atomically
-    Note over U,P: Insufficient liquidity reverts the entire redemption; shares remain intact
+    Note over U,P: Insufficient liquidity reverts redemption and preserves shares
 ```
 
 Native deposits start at the Stellar wallet. Base funding and the vault deposit are separate transactions; cancelling the deposit leaves the received USDC in the user's wallet. The app tracks burn, attestation, mint and deposit independently, and resumes from confirmed steps.
