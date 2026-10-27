@@ -1,0 +1,61 @@
+{
+  "captured_at_utc": "2026-10-27T08:27:20.755375+00:00",
+  "network": "Stellar testnet",
+  "passphrase": "Test SDF Network ; September 2015",
+  "rpc_url": "https://soroban-testnet.stellar.org",
+  "contract": "CDIFRFUBAAXTPHMRZHVLCQ3HRQMODAEKWA4MV3DRSKRWC7MQQKJTSNGQ",
+  "test_account": "GDRZTMYY4A7Z4GWJJ2AZ6XCUYUXHWUACHRLKWA3PX7CMSYL2TI6WMZBE",
+  "asset_contract": "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
+  "asset": "Native testnet XLM via Stellar Asset Contract (no monetary value; not USDC)",
+  "asset_decimals": 7,
+  "deposit_base_units": "100000000",
+  "withdraw_base_units": "100000000",
+  "final_recorded_deposit_balance": "0",
+  "wasm_sha256": "1dd9a5ea369645abb994e37d2c2b17db1110ce8ce16d769a8ae9dca85208d5c6",
+  "soroban_sdk": "29.0.1",
+  "stellar_cli": "28.1.0",
+  "rustc": "1.96.0",
+  "unit_tests": {
+    "passed": 6,
+    "failed": 0
+  },
+  "transactions": {
+    "upload": {
+      "hash": "46a343fb0612e69478119aa52952a3e113361d12d70b4f5e275807a6db8b5156",
+      "status": "SUCCESS",
+      "ledger": 5413176,
+      "created_at_utc": "2026-10-27T08:24:27Z",
+      "source_account": "GDRZTMYY4A7Z4GWJJ2AZ6XCUYUXHWUACHRLKWA3PX7CMSYL2TI6WMZBE",
+      "horizon": "https://horizon-testnet.stellar.org/transactions/46a343fb0612e69478119aa52952a3e113361d12d70b4f5e275807a6db8b5156",
+      "explorer": "https://stellar.expert/explorer/testnet/tx/46a343fb0612e69478119aa52952a3e113361d12d70b4f5e275807a6db8b5156"
+    },
+    "deploy": {
+      "hash": "00a0c324b02f09ffe0b226b91824722ac7bafc618ed70618ca7db278de980159",
+      "status": "SUCCESS",
+      "ledger": 5413177,
+      "created_at_utc": "2026-10-27T08:24:32Z",
+      "source_account": "GDRZTMYY4A7Z4GWJJ2AZ6XCUYUXHWUACHRLKWA3PX7CMSYL2TI6WMZBE",
+      "horizon": "https://horizon-testnet.stellar.org/transactions/00a0c324b02f09ffe0b226b91824722ac7bafc618ed70618ca7db278de980159",
+      "explorer": "https://stellar.expert/explorer/testnet/tx/00a0c324b02f09ffe0b226b91824722ac7bafc618ed70618ca7db278de980159"
+    },
+    "deposit": {
+      "hash": "28b8f1956c102c01146597d2c556089fea6fd385e01ad9ab6eca5d2d19173fe0",
+      "status": "SUCCESS",
+      "ledger": 5413186,
+      "created_at_utc": "2026-10-27T08:25:17Z",
+      "source_account": "GDRZTMYY4A7Z4GWJJ2AZ6XCUYUXHWUACHRLKWA3PX7CMSYL2TI6WMZBE",
+      "horizon": "https://horizon-testnet.stellar.org/transactions/28b8f1956c102c01146597d2c556089fea6fd385e01ad9ab6eca5d2d19173fe0",
+      "explorer": "https://stellar.expert/explorer/testnet/tx/28b8f1956c102c01146597d2c556089fea6fd385e01ad9ab6eca5d2d19173fe0"
+    },
+    "withdraw": {
+      "hash": "0140d82cecec4eb7f0689a18fe454d5a6337a1dd24d58f1a43a01d442445c6a5",
+      "status": "SUCCESS",
+      "ledger": 5413192,
+      "created_at_utc": "2026-10-27T08:25:47Z",
+      "source_account": "GDRZTMYY4A7Z4GWJJ2AZ6XCUYUXHWUACHRLKWA3PX7CMSYL2TI6WMZBE",
+      "horizon": "https://horizon-testnet.stellar.org/transactions/0140d82cecec4eb7f0689a18fe454d5a6337a1dd24d58f1a43a01d442445c6a5",
+      "explorer": "https://stellar.expert/explorer/testnet/tx/0140d82cecec4eb7f0689a18fe454d5a6337a1dd24d58f1a43a01d442445c6a5"
+    }
+  },
+  "scope": "Pre-award self-funded deposit/withdraw proof, excluded from grant budget. No yield, shares, pool adapter, operators, CCTP or mainnet readiness. AI-assisted code; team review and independent audit not claimed."
+}

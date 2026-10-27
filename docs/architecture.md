@@ -8,7 +8,7 @@ Earn is a USDC vault on Stellar, operated through a reusable job registry and Di
 | --- | --- | --- |
 | User wallet | Authorizes deposits and redemptions | USDC before deposit and after redemption; vault shares |
 | Earn vault | Share accounting, idle buffer, approved allocation | Idle Stellar USDC and ownership of pool positions |
-| Blend pools | Lending reserves and indexed positions | Supplied USDC |
+| Approved lending pools (initial adapter candidate: Blend) | Lending reserves and indexed positions | Supplied USDC |
 | Job registry | Owner authorization, job policy, executor checks, nonce | No |
 | Operators | Read state, evaluate policy, simulate, sign and submit | No |
 | CCTP / official forwarder | Burn-and-mint settlement into Stellar | Transient mint-and-forward; no Ditto custodial wallet |
@@ -24,7 +24,7 @@ sequenceDiagram
     participant F as Stellar CctpForwarder
     participant W as User Stellar wallet
     participant V as Earn vault
-    participant P as Approved Blend pools
+    participant P as Approved lending pools
     opt Fund from Base
         U->>C: Sign USDC burn with Stellar destination
         C-->>U: Attestation available
@@ -53,12 +53,12 @@ CCTP integration follows the [official Stellar guide](https://developers.circle.
 flowchart TD
     D[Vault owner through public SDK] -->|Authorize create or cancel| R[Onchain job registry]
     R -.->|Discover active jobs| O[Two separately keyed operator instances]
-    S[Vault state and Blend pool state] -.-> O
+    S[Vault and approved pool state] -.-> O
     O --> E[Evaluate rates, liquidity, caps and estimated costs]
     E --> T[Simulate with Stellar RPC; sign locally; submit]
     T --> X[Registry execute: executor, active job, policy version, nonce]
     X --> V[Vault: enforce approved pools, caps and cooldown]
-    V --> P[Blend adapter: supply or recall]
+    V --> P[Venue adapter: supply or recall]
     P --> A[Atomic commit of action and nonce]
     A -.-> M[Confirmed status, events and monitoring]
     M -.-> O
@@ -76,7 +76,7 @@ Operators evaluate expected returns after costs and rebalance only above the con
 | Registry | Job owner, compatible vault, active flag, policy version, next execution nonce; executor authorization |
 | Public TypeScript SDK | `createJob`, `cancelJob`, `getJobStatus`; transaction building and confirmation tracking |
 | Operator connector | Job discovery, state reads, simulation, local signing, submission, confirmation and safe retry |
-| Blend adapter | Allowlisted supply/withdrawal and indexed position valuation |
+| Venue adapter (Blend first candidate) | Allowlisted supply/withdrawal and indexed position valuation |
 
 A second compatible vault must use the same supported job interface without operator software changes. Arbitrary user code and new job types are outside the initial release.
 
@@ -87,3 +87,9 @@ A Stellar account with a two-of-three signer threshold controls executor permiss
 Security-critical scope freezes by week 8, with a complete review candidate by week 10. Mainnet deposits remain closed until independent review covers the release and critical/high findings are resolved. See [security](security.md), [test plan](test-plan.md) and [deployment evidence](deployments.md).
 
 Integration references: [Stellar smart contracts](https://developers.stellar.org/docs/build/smart-contracts) · [Blend documentation](https://docs.blend.capital/) · [Circle CCTP](https://developers.circle.com/cctp/references/stellar).
+
+## Venue selection
+
+The registry and connector target compatible vault interfaces rather than one lending protocol. The four-month build funds one reviewed lending adapter, with Blend as the initial candidate. DeFindex and Templar are other Stellar integration candidates; they are not verified replacements or additional funded integrations. Their underlying strategies, custody and liquidity must be reviewed, and a Blend-backed strategy retains Blend exposure. SCF clarification of Blend's temporary Integration Track-list removal remains pending; Open Track eligibility is not assumed to be confirmed. Any launch-venue change needs a revised adapter/valuation design and agreement with SCF. Additional lending and eligible Stellar RWA adapters follow in later releases.
+
+The [pre-award proof](../prototype/README.md) tests generic token custody only. It does not implement the architecture above.

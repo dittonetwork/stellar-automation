@@ -1,0 +1,9 @@
+running 6 tests
+test test::zero_and_negative_amounts_are_rejected ... ok
+test test::failed_token_transfer_does_not_credit_deposit ... ok
+test test::overwithdraw_preserves_accounting ... ok
+test test::unauthenticated_actions_are_rejected ... ok
+test test::deposit_and_full_withdraw_return_funds ... ok
+test test::deposits_are_isolated_by_owner ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s

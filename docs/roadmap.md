@@ -41,12 +41,16 @@ Mainnet deposits open only after review and resolution of all critical/high find
 - Fourteen consecutive monitored days after deposits open, with an incident runbook and published evidence.
 - Contract IDs, code hashes, relevant accounts and transaction hashes published in a deployment manifest. Count executions by unique `(job ID, nonce)`; distinguish test activity from real external usage.
 
-There is no promised minimum third-party TVL. Report actual external funded wallets, net vault inflows, vault assets and CCTP-attributed deposits separately. Do not count a wallet transfer again as a vault deposit.
+Pilot adoption target: by the end of the first 14 days after mainnet deposits open, reach 10 external funded wallets and 10,000 USDC in assets attributable to external depositors. These are targets for a small invited pilot, not committed demand or additional technical acceptance conditions. SCF must approve the final milestone terms. Count distinct non-team, non-test addresses with a positive vault-share balance at the day-14 ledger; calculate their assets as their share of vault net assets. Publish the ledger, contract IDs, calculation and excluded team/test accounts. Report actual results even if the targets are missed. Report CCTP-attributed inflows separately and do not count a wallet transfer again as a vault deposit.
 
 ## Scope boundaries
 
-Blend is the initial venue. Testnet uses two isolated pools to prove allocation logic; mainnet uses only reviewed, active USDC pools with adequate liquidity. A single qualifying pool is sufficient for a capped launch. SCF's current treatment of Blend in its Integration Track list requires clarification for this Open Track application; no approval is implied.
+The platform uses venue adapters; Blend is the initial candidate for the one funded lending integration. Testnet uses two isolated pools to prove allocation logic; mainnet uses only reviewed, active USDC pools with adequate liquidity. A single qualifying pool is sufficient for a capped launch. SCF's current treatment of Blend in its Integration Track list requires clarification for this Open Track application; no approval is implied.
 
 DeFindex and Templar are existing Stellar yield products, not interchangeable fallback adapters. Any venue replacement requires a revised custody/liquidity analysis, architecture and agreement with SCF. A DeFindex strategy using Blend would still have Blend exposure.
 
 Additional Stellar lending venues and eligible RWA adapters are future work. Ondo USDY and Franklin Templeton BENJI are examples of Stellar RWA products to evaluate, not committed integrations. Access, valuation, liquidity and redemption rules must be reviewed separately.
+
+## Pre-award work excluded
+
+A minimal deposit/withdraw proof using native testnet XLM was completed before the award at Ditto's own expense. Its source, tests and transaction evidence are public. This proof is excluded from the grant budget; it does not implement USDC integration, yield shares, pool accounting, operators or CCTP. See [proof and scope](../prototype/README.md).

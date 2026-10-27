@@ -9,3 +9,6 @@
 .vscode/
 node_modules/
 target/
+
+.stellar/
+test_snapshots/

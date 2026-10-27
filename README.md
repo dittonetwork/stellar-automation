@@ -6,7 +6,7 @@
 
 Ditto is building reusable operator infrastructure and a vault platform on Stellar. Earn is the first application: a USDC vault whose operators rebalance approved positions to improve expected net yield within onchain risk and liquidity limits.
 
-**Build status:** design and documentation. This repository contains the architecture and delivery specification for Ditto's SCF Open Track application. It does not yet contain a runnable Soroban implementation, deployed Stellar contracts or audit results. Existing Mezo and EVM products are [prior work](docs/evidence.md).
+**Build status:** a [minimal deposit/withdraw proof](prototype/README.md) is live on Stellar testnet with six passing tests and real transaction evidence. It uses valueless testnet XLM, not USDC, and contains no yield or automation. The full Earn platform remains a planned build. The pre-award proof is self-funded and excluded from the grant. Existing Mezo and EVM products are [prior work](docs/evidence.md).
 
 ```mermaid
 flowchart LR
@@ -14,7 +14,7 @@ flowchart LR
     C --> F[Official Stellar CctpForwarder]
     F --> W[User Stellar wallet]
     W -->|Authorized deposit| V[Earn vault and shares]
-    V <-->|Supply and withdraw| P[Approved Blend USDC pools]
+    V <-->|Supply and withdraw| P[Approved USDC pools / venue adapters]
     V -->|Redeem Stellar USDC| W
     O[Ditto operators] -.->|Simulate and submit| R[Job registry]
     R -.->|Validated rebalance| V
@@ -23,7 +23,7 @@ flowchart LR
 ## What the build delivers
 
 - **Operators and public SDK:** create, cancel and inspect supported automation jobs; reuse the execution layer across compatible Soroban vaults.
-- **Earn:** USDC deposits, proportional shares, pool accounting, allocation and redemptions. Blend is the launch integration; two testnet pools demonstrate rebalancing.
+- **Earn:** USDC deposits, proportional shares, pool accounting, allocation and redemptions. The initial adapter candidate is Blend; two isolated testnet pools demonstrate rebalancing.
 - **EVM onboarding:** Base USDC reaches the user's Stellar wallet through CCTP, followed by a separate authorized vault deposit. Strategy capital remains on Stellar.
 
 Operators submit transactions; vault and pool contracts hold the funds. Execution permissions, pool allowlists, caps, cooldowns and nonces are enforced onchain. A capped mainnet launch follows independent review and resolution of critical/high findings.
@@ -42,8 +42,8 @@ Operators submit transactions; vault and pool contracts hold the funds. Executio
 
 ## Scope and team
 
-Launch focuses on approved Blend USDC pools and an idle withdrawal buffer, without leverage. If only one mainnet pool qualifies, Earn provides automated position management and onboarding; it does not promise an advantage over that pool's direct lending rate. Additional Stellar lending and eligible RWA adapters are future extensions, outside this build.
+Launch focuses on a reviewed USDC lending adapter and approved pools (initial candidate: Blend) and an idle withdrawal buffer, without leverage. If only one mainnet pool qualifies, Earn provides automated position management and onboarding; it does not promise an advantage over that pool's direct lending rate. Additional Stellar lending and eligible RWA adapters are future extensions, outside this build.
 
 Vlad Shad and Efim Zhitomirskiy are the hands-on engineers for Soroban implementation and operator integration. [Ditto Network](https://dittonetwork.io) builds the existing operator network and Mezo/Spark vault.
 
-New Ditto-authored repository material is released under [Apache-2.0](LICENSE), except Ditto branding, for which no trademark rights are granted. Referenced third-party projects retain their own licenses. AI assisted preparation of these design documents; implementation, testing and external review remain explicit delivery steps.
+New Ditto-authored repository material is released under [Apache-2.0](LICENSE), except Ditto branding, for which no trademark rights are granted. Referenced third-party projects retain their own licenses. AI assisted the documents, prototype source and tests. Named-engineer code review and independent audit are not claimed for the prototype. The full implementation and external review remain delivery steps.
