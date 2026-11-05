@@ -1,56 +1,68 @@
 # Roadmap and budget
 
-**Request: $120,000 USD equivalent in XLM over four months.** Weeks start on receipt of the approval advance. This is the delivery plan for the application, not an award or deployment announcement.
+SCF Open Track. $96,000 USD equivalent in XLM, 1,200 team-hours at a blended $80/hour, 16 weeks from receipt of Tranche #0.
 
-SCF pays $12,000 on approval, then $24,000 / $36,000 / $48,000 against the three milestones. The approval advance is included once in milestone 1's work budget.
+| Payment | Amount | Trigger |
+| --- | ---: | --- |
+| Tranche #0 | $9,600 | Approval advance |
+| Tranche #1 | $19,200 | MVP acceptance |
+| Tranche #2 | $28,800 | Integration acceptance |
+| Tranche #3 | $38,400 | Mainnet acceptance |
 
-| Milestone | Timing | Work budget | Completion evidence |
-| --- | --- | ---: | --- |
-| 1. Native testnet vault | Weeks 1–5 | $36,000 | Published contracts and tagged source; deposit, allocation and redemption demo; accounting and authorization tests |
-| 2. Automated testnet platform | Weeks 6–10 | $36,000 | Operator failover, two-pool reallocation, reusable SDK and registry, Base funding demo, STRIDE model and monitoring plan |
-| 3. Capped mainnet launch | Weeks 11–16 | $48,000 | Independently reviewed release, resolved critical/high findings, public deployment manifest and 14 days of monitored operation |
+The first work budget includes the advance once. Total work budgets: $28,800 + $28,800 + $38,400. External audit fees, marketing and past work are outside this request.
 
-## Task budgets
+## Milestone 1
 
-| Milestone | Task | USD |
-| --- | --- | ---: |
-| 1 | Vault contracts and accounting | 15,000 |
-| 1 | One Blend testnet pool and adapter | 13,000 |
-| 1 | Wallet, deposit, position and redemption interface | 8,000 |
-| 2 | Operator connector and two-pool allocation | 12,000 |
-| 2 | Job registry and public SDK | 10,000 |
-| 2 | Base-to-Stellar CCTP onboarding | 8,000 |
-| 2 | STRIDE threat model, security checks and monitoring plan | 6,000 |
-| 3 | Release hardening and external-review remediation | 20,000 |
-| 3 | Mainnet deployment and application release | 18,000 |
-| 3 | Monitoring and launch verification | 10,000 |
-| **Total** | | **120,000** |
+Milestone: a working Stellar USDC vault on testnet. Weeks 1-5 from receipt of Tranche #0. Work budget: $28,800 for 360 hours at $80/hour, funded by the $9,600 approval advance and $19,200 milestone payment.
 
-The estimate is 1,500 team-hours at a blended $80/hour. Marketing, external audit fees and past work are excluded.
+1. Soroban vault contracts: 140 hours, $11,200. Implement USDC deposits, proportional shares, total-asset accounting, redemptions, owner authorization and deposit caps. Evidence: deployed testnet contracts and passing accounting, rounding, donation/first-deposit, unauthorized-call and failed-redemption tests.
 
-## Review and release schedule
+2. Blend adapter: 100 hours, $8,000. Implement supply, withdrawal, position valuation and available-liquidity reads for a USDC pool. Evidence: linked supply and withdrawal transactions, correct vault valuation before and after interest accrual, and an illiquid-exit test preserving user shares.
 
-Arrange independent review and its separate funding at kickoff; confirm the slot by week 2. Freeze security-critical scope by week 8 and deliver the complete review candidate by week 10. Target review in weeks 10–12, reserve weeks 13–14 for remediation/retesting, and monitor the live capped release during weeks 15–16.
+3. Deposit application: 80 hours, $6,400. Deliver Freighter/xBull connection, deposit, share balance, position value and redemption screens. Evidence: a testnet URL and a recorded deposit-to-redemption flow.
 
-Mainnet deposits open only after review and resolution of all critical/high findings. If review is delayed, agree revised delivery dates with SCF; do not shorten review or the 14-day observation period.
+4. Integrated MVP verification: 40 hours, $3,200. Verify the complete wallet, vault and adapter flow with reproducible tests, contract IDs and a tagged code version. This covers cross-component behavior, separately from the unit tests above.
 
-## Launch acceptance
+The existing self-funded native-XLM prototype is excluded from this budget. This milestone builds the USDC yield vault and application beyond that proof. Operators and cross-chain deposits follow in milestone 2.
 
-- Five successful deposit-to-redemption cycles from at least three disclosed test accounts, including one Base-funded deposit.
-- At least two successful policy-valid actions from different executor accounts; confirmed cancellation blocks later execution.
-- Fourteen consecutive monitored days after deposits open, with an incident runbook and published evidence.
-- Contract IDs, code hashes, relevant accounts and transaction hashes published in a deployment manifest. Count executions by unique `(job ID, nonce)`; distinguish test activity from real external usage.
+## Milestone 2
 
-Pilot adoption target: by the end of the first 14 days after mainnet deposits open, reach 10 external funded wallets and 10,000 USDC in assets attributable to external depositors. These are targets for a small invited pilot, not committed demand or additional technical acceptance conditions. SCF must approve the final milestone terms. Count distinct non-team, non-test addresses with a positive vault-share balance at the day-14 ledger; calculate their assets as their share of vault net assets. Publish the ledger, contract IDs, calculation and excluded team/test accounts. Report actual results even if the targets are missed. Report CCTP-attributed inflows separately and do not count a wallet transfer again as a vault deposit.
+Milestone: automated allocation across two strategy types, with SDK and inbound funding integrations ready for review. Weeks 6-10. Budget and acceptance payment: $28,800 for 360 hours at $80/hour.
 
-## Scope boundaries
+1. Operators, registry and SDK: 140 hours, $11,200. Add job creation, cancellation, status, policy validation and allocation execution. Evidence: a controlled rate-change scenario triggers reallocation; cap, cooldown and nonce tests pass; execution continues after one of two separately keyed operators stops. A second compatible testnet vault runs and cancels jobs through the same SDK without changing operator software.
 
-The platform uses venue adapters; Blend is the initial candidate for the one funded lending integration. Testnet uses two isolated pools to prove allocation logic; mainnet uses only reviewed, active USDC pools with adequate liquidity. A single qualifying pool is sufficient for a capped launch. SCF's current treatment of Blend in its Integration Track list requires clarification for this Open Track application; no approval is implied.
+2. Sentora USDC / Upshift adapter: 80 hours, $6,400. Add deposit, receipt-share valuation and redemption integration, with available-liquidity checks and a 20% limit on new or increased exposure. Evidence: tests against a testnet interface fixture covering share decimals, NAV changes, partial liquidity and failed exits. Record read-only checks against the live Stellar contract. Use a local Soroban fixture for repeatable tests and verify production interaction in milestone 3.
 
-DeFindex and Templar are existing Stellar yield products, not interchangeable fallback adapters. Any venue replacement requires a revised custody/liquidity analysis, architecture and agreement with SCF. A DeFindex strategy using Blend would still have Blend exposure.
+3. CCTP onboarding: 40 hours, $3,200. Integrate Base and Ethereum USDC transfer flows and Stellar CctpForwarder settlement, followed by a separate authorized vault deposit. Evidence: testnet burn/mint/deposit transactions for both source configurations; destination, trustline, decimal and interrupted-session recovery tests.
 
-Additional Stellar lending venues and eligible RWA adapters are future work. Ondo USDY and Franklin Templeton BENJI are examples of Stellar RWA products to evaluate, not committed integrations. Access, valuation, liquidity and redemption rules must be reviewed separately.
+4. NEAR Intents onboarding: 40 hours, $3,200. Integrate 1Click quotes, destination/refund validation, status tracking and the Solana-USDC-to-Stellar-USDC flow. Evidence: live dry quotes plus deterministic settlement, expiry and refund fixtures. Verify live mainnet settlement in milestone 3.
 
-## Pre-award work excluded
+5. STRIDE threat model and monitoring: 60 hours, $4,800. Document threats and controls for authorization, replay, valuation, managed-strategy liquidity, routing, RPC failure and storage lifetime. Evidence: a versioned model, security-test results, remediation log and demonstrated execution-failure/operator-outage alerts.
 
-A minimal deposit/withdraw proof using native testnet XLM was completed before the award at Ditto's own expense. Its source, tests and transaction evidence are public. This proof is excluded from the grant budget; it does not implement USDC integration, yield shares, pool accounting, operators or CCTP. See [proof and scope](../prototype/README.md).
+Freeze security-critical scope by week 8 and provide the complete review package by week 10. Reuse Ditto's existing operator scheduling, transaction tracking and application components; the funded work is their Stellar integration and verification.
+
+## Milestone 3
+
+Milestone: capped mainnet launch of Earn, operators and both yield adapters, followed by 14 days of verified operation. Weeks 11-16. Budget and acceptance payment: $38,400 for 480 hours at $80/hour.
+
+1. Security hardening and review remediation: 180 hours, $14,400. Resolve findings, test storage restoration, access controls, share accounting and failed strategy exits. Evidence: external review report and remediation results for the deployed code and configuration. Mainnet deposits open only after external review and resolution of all critical and high findings. Audit fees are outside this grant request.
+
+2. Mainnet deployment: 100 hours, $8,000. Deploy the vault, job registry, Blend and Sentora/Upshift adapters and two operator instances. Configure an initial 100,000 USDC vault deposit cap, a 10% idle-USDC target and a 20% limit on new or increased Sentora exposure. Publish contract IDs, code hashes, permitted strategies, admin/executor accounts and permissions.
+
+3. Production integration verification: 100 hours, $8,000. Verify native deposits, Base and Ethereum CCTP deposits, and a Solana USDC deposit through NEAR Intents. Verify strategy deposits and redemptions through both adapters, operator allocation and cancellation. Evidence: linked source/settlement/vault transactions, measured settlement times, liquidity checks and a report separating fixture tests from live execution.
+
+4. Launch observation and developer handoff: 100 hours, $8,000. Complete 14 consecutive days of monitored operation, publish the incident runbook, SDK quickstart and an embeddable deposit-component example. Evidence: five deposit-to-redemption cycles across three disclosed test accounts, at least two policy-valid operator actions from different executor accounts, and cancellation blocking subsequent execution. Team tests are reported separately from adoption.
+
+Pilot growth targets for the first 14 days: 10 external funded wallets and 10,000 USDC in assets attributable to external depositors. Report actual performance against these targets separately from technical milestone acceptance. Measure daily balances and day-14 results using the published vault, registry, strategy and executor addresses, excluding disclosed team/test accounts.
+
+Schedule: reserve independent review and its separate funding in weeks 1-2; review in weeks 10-12; fixes and retesting in weeks 13-14; open capped mainnet deposits at the start of week 15 and complete observation by the end of week 16. Public deposits open only after the review gate is passed.
+
+## Onchain measurement
+
+We will publish the Earn vault, job registry, strategy adapters, underlying strategy contracts, admin accounts and executor accounts in a deployment manifest.
+
+Technical acceptance: five complete deposit-to-redemption cycles across at least three disclosed test accounts; successful native funding and Base/Ethereum CCTP and Solana-USDC NEAR Intents funding; deposit and redemption evidence for both strategy adapters; at least two policy-valid operator actions from different executor accounts; and cancellation blocking later execution. Complete 14 consecutive days of monitored mainnet operation after deposits open. Deduplicate operator actions by (job ID, nonce) and vault flows by transaction hash.
+
+Pilot growth targets: 10 external funded wallets with positive vault-share balances and 10,000 USDC in assets attributable to external depositors at the day-14 ledger. Publish the ledger, daily balances, share-based asset calculation and excluded team/test accounts. A wallet address is not claimed to be a unique person. Report net deposits, cross-chain-attributed vault deposits and realized net yield separately, without counting a wallet transfer as a vault deposit. Report actual growth against these targets separately from the technical acceptance criteria.
+
+[Task-by-task hours and budget](budget-hours.csv).

@@ -10,11 +10,12 @@ Existing Ditto deployments on other networks are listed in [prior work](evidence
 Before a deployment is announced, publish a manifest containing:
 
 - Network/passphrase, release tag, source commit and contract code hashes.
-- Vault, registry, USDC asset contract and approved pool contract IDs.
+- Vault, registry, USDC asset contract and approved strategy/adapter contract IDs, underlying versions and receipt-token identifiers.
 - Admin account, signer thresholds and executor accounts; no private keys.
 - Public policy parameters, caps, supported jobs and pause/upgrade permissions.
-- For Base onboarding: official Circle contract addresses, domains and recipient configuration.
+- For Base/Ethereum onboarding: official Circle contract addresses, domains and recipient configuration.
+- For Solana onboarding: 1Click source/destination asset identifiers, recipient validation and refund configuration.
 - External review report and resolved-finding references for mainnet.
-- Deposit, allocation, cancellation and redemption transaction hashes.
+- Deposit, allocation, cancellation and redemption transaction hashes for both strategy adapters and all supported funding routes.
 
 Operators, SDK consumers and the application must use the same verified manifest. The minimal proof has its own [manifest](evidence/testnet-proof-2026-10-27.json). The full Earn/registry manifest will be published with those deployments.

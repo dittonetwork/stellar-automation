@@ -1,95 +1,93 @@
-# Architecture
+# Stellar architecture
 
-Earn is a USDC vault on Stellar, operated through a reusable job registry and Ditto execution connector. This document specifies the build; interfaces are design-level and will be finalized with implementation and review.
+Earn is Ditto's USDC vault on Stellar and the first application of its reusable operator connector, job registry and public TypeScript SDK. This document defines the funded implementation. The existing [native-XLM proof](../prototype/README.md) only demonstrates token custody and authorization.
 
-## Assets and custody
+## Components and custody
 
-| Component | Responsibility | Holds user assets? |
+| Component | Responsibility | Assets / authority |
 | --- | --- | --- |
-| User wallet | Authorizes deposits and redemptions | USDC before deposit and after redemption; vault shares |
-| Earn vault | Share accounting, idle buffer, approved allocation | Idle Stellar USDC and ownership of pool positions |
-| Approved lending pools (initial adapter candidate: Blend) | Lending reserves and indexed positions | Supplied USDC |
-| Job registry | Owner authorization, job policy, executor checks, nonce | No |
-| Operators | Read state, evaluate policy, simulate, sign and submit | No |
-| CCTP / official forwarder | Burn-and-mint settlement into Stellar | Transient mint-and-forward; no Ditto custodial wallet |
+| User Stellar wallet | Signs deposits and redemptions | USDC and Earn shares |
+| Earn vault | Shares, NAV, buffer, permitted allocation | Idle USDC and ownership of strategy positions |
+| Blend adapter / USDC pool | Supply, withdraw, reserve valuation | Vault-owned indexed lending position |
+| Sentora USDC / Upshift adapter | Deposit, receipt valuation and redeem | Vault-owned strategy shares; underlying backing is managed by Sentora |
+| Job registry | Owner, vault, active status, policy version and nonce | No user assets |
+| Ditto operators | Read, calculate, simulate, sign and submit | Execution keys only; no user asset custody |
+| CCTP / CctpForwarder | Burn-and-mint settlement | Destination USDC forwarded to the user's Stellar account |
+| NEAR Intents 1Click | Quote, source deposit, settlement or refund | External settlement path; separate from the vault |
 
-The asset is Circle-issued USDC through its Stellar Asset Contract. All funded yield positions remain on Stellar. Shares represent a proportional claim on idle USDC plus the underlying value of indexed pool positions. Accounting must handle integer rounding, first deposits, donations and insufficient pool liquidity.
-
-## Deposit to redemption
+Circle-issued Stellar USDC is the deposit and redemption asset. Direct Earn positions and receipt ownership are on Stellar. Managed strategy backing can sit outside Stellar and is not independently verified merely by reading a receipt balance.
 
 ```mermaid
 sequenceDiagram
     actor U as User
-    participant C as Circle CCTP
-    participant F as Stellar CctpForwarder
+    participant F as CCTP or Intents route
     participant W as User Stellar wallet
     participant V as Earn vault
-    participant P as Approved lending pools
-    opt Fund from Base
-        U->>C: Sign USDC burn with Stellar destination
-        C-->>U: Attestation available
-        U->>F: Submit attested message
-        F->>W: Mint and forward USDC atomically
+    participant P as Blend or Sentora adapter
+    opt Fund from supported external chain
+        U->>F: Authorize source transfer
+        F->>W: Settle Stellar USDC
     end
-    U->>V: Authorize deposit from Stellar wallet
-    W->>V: Transfer USDC
-    V->>U: Record vault shares
-    Note over V,P: Allocation through an authorized registry execution
-    V->>P: Supply USDC and record vault-owned position
-    U->>V: Authorize redemption
-    V->>P: Recall liquidity if buffer is insufficient
-    P->>V: Return available USDC
-    V->>W: Pay redemption and burn shares atomically
-    Note over U,P: Insufficient liquidity reverts redemption and preserves shares
+    U->>V: Authorize deposit, with minimum shares
+    W->>V: Transfer USDC under user authorization
+    V->>U: Record proportional Earn shares
+    Note over V,P: Operator action must pass registry and vault policy checks
+    V->>P: Allocate USDC; record vault-owned position
+    U->>V: Authorize redemption, with minimum assets
+    V->>P: Recall available liquidity if needed
+    P->>V: Return USDC
+    V->>W: Pay USDC and burn shares atomically
+    Note over U,P: Failed exit reverts and preserves shares
 ```
 
-Native deposits start at the Stellar wallet. Base funding and the vault deposit are separate transactions; cancelling the deposit leaves the received USDC in the user's wallet. The app tracks burn, attestation, mint and deposit independently, and resumes from confirmed steps.
+## Accounting and allocation
 
-CCTP integration follows the [official Stellar guide](https://developers.circle.com/cctp/references/stellar): use the official forwarder for both `mintRecipient` and `destinationCaller`, encode the user's Stellar recipient in hook data, validate recipient readiness, and handle six-decimal CCTP amounts versus seven-decimal Stellar USDC. Pin verified network-specific addresses before release. An interrupted session must not trigger a second deposit.
+NAV is idle USDC plus indexed Blend value plus underlying-reported USDC value of Sentora shares. Share conversions normalize token decimals and round conservatively. Tests cover first-deposit/donation attacks, fees, empty vaults, losses, partial liquidity and failed redemptions. Unrealized receipt value must not be confused with instantly withdrawable liquidity.
 
-## Automation network
+Operators compare estimated net returns over a configured horizon after fees and movement costs. Blend uses reserve-based estimates; Sentora uses conservative historical return estimates. Rebalance only when the expected benefit exceeds the configured threshold. Onchain contracts enforce the destinations, caps, cooldown and nonce. They do not prove the accuracy of an offchain yield forecast.
+
+The launch deposit cap is 100,000 USDC. The idle target is 10%. New or increased Sentora exposure is capped at 20% of NAV; passive value movements can change the weight. Earn does not borrow or leverage. Use idle assets first for redemption, then recall available strategy liquidity. A redemption that cannot deliver its required amount reverts atomically, leaving shares intact. The UI shows currently redeemable USDC. A buffer target is not an immediate-exit guarantee.
+
+## Named strategy interfaces
+
+**Blend:** supply/withdraw USDC through the pool's authorized submit interface, read indexed position value and reserve liquidity. The reviewed pool/version and asset contract are pinned in the deployment manifest. Multiple Blend pools are markets within one protocol, not independent venues.
+
+**Sentora USDC on Upshift:** use the Stellar vault interface for deposits, share conversion, max-withdraw/max-redeem reads and redemption. Earn owns the underlying receipt shares and authorizes adapter calls with the required Soroban contract invocation context. Underlying NAV includes managed assets; withdrawals are limited by available liquidity and can wait on the manager returning funds. No fixed withdrawal-time guarantee is assumed. Repeatable milestone-2 tests use a local interface fixture plus read-only checks of the live contract; milestone 3 includes live deposit and redemption verification.
+
+## Funding routes
+
+**Base and Ethereum via Circle CCTP.** Preflight the Stellar account and USDC trustline before source burn. Use the official network-specific CctpForwarder as both `mintRecipient` and `destinationCaller`, with the user's Stellar recipient in hook data. Submit the attested message through `mint_and_forward`. Normalize six-decimal source amounts and seven-decimal Stellar USDC. A separate user-authorized vault deposit follows settlement. Track source burn, attestation, forwarding and vault deposit independently so a resumed session does not deposit twice.
+
+**Solana USDC via NEAR Intents 1Click.** Obtain a quote for the exact source and destination USDC identifiers; validate recipient, refund address, expiry and slippage. The user sends to the quoted deposit address. Track settlement or refund before offering the separately authorized vault deposit. Milestone-2 evidence is live dry quotes and deterministic settlement/refund fixtures, followed by live mainnet route verification in milestone 3.
+
+Freighter and xBull are wallet-connection integrations through Stellar Wallets Kit, not promised in-wallet listings. Supported routes are explicit; no every-chain compatibility is claimed.
+
+## Automation and permissions
 
 ```mermaid
 flowchart TD
-    D[Vault owner through public SDK] -->|Authorize create or cancel| R[Onchain job registry]
-    R -.->|Discover active jobs| O[Two separately keyed operator instances]
-    S[Vault and approved pool state] -.-> O
-    O --> E[Evaluate rates, liquidity, caps and estimated costs]
-    E --> T[Simulate with Stellar RPC; sign locally; submit]
-    T --> X[Registry execute: executor, active job, policy version, nonce]
-    X --> V[Vault: enforce approved pools, caps and cooldown]
-    V --> P[Venue adapter: supply or recall]
-    P --> A[Atomic commit of action and nonce]
-    A -.-> M[Confirmed status, events and monitoring]
+    D[Owner via SDK] -->|Authorize create / cancel| R[Job registry]
+    R -.->|Active job discovery| O[Two separately keyed executors]
+    S[Vault and strategy state] -.-> O
+    O --> E[Estimate net benefit and feasible allocation]
+    E --> T[Simulate; sign locally; submit through RPC]
+    T --> X[Validate executor, active job, policy and nonce]
+    X --> V[Vault enforces destinations, caps and cooldown]
+    V --> A[Adapter action and nonce commit atomically]
+    A -.-> M[Events, confirmation and monitoring]
     M -.-> O
 ```
 
-The first valid execution of a job nonce succeeds; duplicate attempts revert. Job cancellation takes effect when confirmed and prevents subsequent execution, without reversing completed transactions. Simulation is a preflight check; current onchain authorization and policy checks remain decisive.
+The registry stores the vault, job owner, active flag, policy version, nonce and permitted executors. SDK methods support job creation, cancellation and status. The first valid execution wins; duplicate nonce attempts revert. Confirmed cancellation blocks later execution and does not reverse finalized transactions. Retry against current state after unknown transaction outcomes.
 
-Operators evaluate expected returns after costs and rebalance only above the configured benefit threshold. They cannot change vault policy or redirect withdrawals. Two separately keyed instances provide failover, not proof of independent organizational control. Existing EVM restaking does not automatically provide slashable security for Stellar jobs.
+User signatures control deposits and redemptions. Executors only run supported allocation jobs. A 2-of-3 admin multisig controls executor enrollment and emergency deposit/allocation pause. Launch strategy addresses and upper limits are fixed. New strategy code requires a reviewed release and opt-in migration. Ditto's pause leaves exits callable against available liquidity, while underlying strategy pauses and issuer controls can still limit exits.
 
-## Contract and SDK boundaries
+Two executor instances demonstrate failover, not independent organizations, a new consensus protocol or inherited EVM slashing security. This release does not offer arbitrary user-code execution.
 
-| Surface | Planned operations / state |
-| --- | --- |
-| Vault | `deposit(owner, assets, min_shares)`, `redeem(owner, shares, min_assets)`, registry-only `rebalance(targets)` |
-| Registry | Job owner, compatible vault, active flag, policy version, next execution nonce; executor authorization |
-| Public TypeScript SDK | `createJob`, `cancelJob`, `getJobStatus`; transaction building and confirmation tracking |
-| Operator connector | Job discovery, state reads, simulation, local signing, submission, confirmation and safe retry |
-| Venue adapter (Blend first candidate) | Allowlisted supply/withdrawal and indexed position valuation |
+## Release and verification
 
-A second compatible vault must use the same supported job interface without operator software changes. Arbitrary user code and new job types are outside the initial release.
+$96,000 covers 1,200 team-hours across 16 weeks. MVP in weeks 1-5; operators, second adapter and routes in weeks 6-10; external review, remediation, capped mainnet and 14-day observation in weeks 11-16. Reserve independent review in weeks 1-2, freeze security-critical scope by week 8 and submit the full candidate by week 10. Deposits open only after review and critical/high remediation. External audit fees are separate from the development request.
 
-## Administration and launch limits
+See the [costed roadmap](roadmap.md), [security design](security.md), [test plan](test-plan.md) and [deployment manifest requirements](deployments.md). Future Stellar lending, RWA and Spark access extensions require separate adapter, custody, eligibility and liquidity work.
 
-A Stellar account with a two-of-three signer threshold controls executor permissions, caps and pause. Launch uses fixed contract code and a reviewed pool list; later code or venue changes require a new reviewed release and opt-in migration. Pause blocks new deposits/allocations while leaving redemptions callable, subject to pool liquidity.
-
-Security-critical scope freezes by week 8, with a complete review candidate by week 10. Mainnet deposits remain closed until independent review covers the release and critical/high findings are resolved. See [security](security.md), [test plan](test-plan.md) and [deployment evidence](deployments.md).
-
-Integration references: [Stellar smart contracts](https://developers.stellar.org/docs/build/smart-contracts) · [Blend documentation](https://docs.blend.capital/) · [Circle CCTP](https://developers.circle.com/cctp/references/stellar).
-
-## Venue selection
-
-The registry and connector target compatible vault interfaces rather than one lending protocol. The four-month build funds one reviewed lending adapter, with Blend as the initial candidate. DeFindex and Templar are other Stellar integration candidates; they are not verified replacements or additional funded integrations. Their underlying strategies, custody and liquidity must be reviewed, and a Blend-backed strategy retains Blend exposure. SCF clarification of Blend's temporary Integration Track-list removal remains pending; Open Track eligibility is not assumed to be confirmed. Any launch-venue change needs a revised adapter/valuation design and agreement with SCF. Additional lending and eligible Stellar RWA adapters follow in later releases.
-
-The [pre-award proof](../prototype/README.md) tests generic token custody only. It does not implement the architecture above.
+References: [Circle Stellar](https://developers.circle.com/cctp/references/stellar), [Blend](https://docs.blend.capital/), [Upshift Stellar interface](https://docs.upshift.finance/vault-architecture/stellar), [NEAR Intents 1Click](https://docs.near-intents.org/integration/distribution-channels/1click-api/quickstart/making-a-request).

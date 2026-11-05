@@ -52,7 +52,7 @@ Testnet resets and storage expiry can make old explorer/RPC links unavailable. A
 
 ## Scope and funding
 
-This pre-award proof is self-funded and excluded from the $120,000 request. Funded work still includes the production vault's USDC integration, proportional yield shares, pool valuation, rounding/donation defenses, strategy adapter, registry, operators, SDK, CCTP, UI and reviewed mainnet release.
+This pre-award proof is self-funded and excluded from the $96,000 request. Funded work still includes the production vault's USDC integration, proportional yield shares, pool valuation, rounding/donation defenses, strategy adapter, registry, operators, SDK, CCTP, UI and reviewed mainnet release.
 
 No yield, transferable shares, pool adapter, automation, bridge or mainnet deployment is implemented here. No independent audit or named-engineer code review is claimed. Do not use this prototype with real assets.
 

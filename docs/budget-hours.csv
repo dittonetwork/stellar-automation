@@ -1,0 +1,14 @@
+Milestone,Deliverable,Hours,USD per hour,USD budget
+1,Soroban vault contracts,140,80,11200
+1,Blend adapter,100,80,8000
+1,Deposit application,80,80,6400
+1,Integrated MVP verification,40,80,3200
+2,"Operators, registry and SDK",140,80,11200
+2,Sentora USDC / Upshift adapter,80,80,6400
+2,CCTP onboarding,40,80,3200
+2,NEAR Intents onboarding,40,80,3200
+2,STRIDE and monitoring,60,80,4800
+3,Security hardening and review remediation,180,80,14400
+3,Mainnet deployment,100,80,8000
+3,Production integration verification,100,80,8000
+3,Launch observation and developer handoff,100,80,8000
